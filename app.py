@@ -1,16 +1,18 @@
-import pickle
 import numpy as np
+from sklearn.linear_model import LinearRegression
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-with open("model.pkl", "rb") as f:
-    _model = pickle.load(f)
+# Entrena el modelo en memoria al arrancar (F = C * 9/5 + 32)
+_celsius = np.array(range(-50, 151)).reshape(-1, 1)
+_fahrenheit = _celsius * 9 / 5 + 32
+_model = LinearRegression()
+_model.fit(_celsius, _fahrenheit)
 
 
 def predict_fahrenheit(celsius: float) -> float:
-    value = np.array([[celsius]])
-    return float(_model.predict(value)[0][0])
+    return float(_model.predict([[celsius]])[0][0])
 
 
 @app.route("/predict", methods=["POST"])
